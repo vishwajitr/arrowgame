@@ -24,8 +24,8 @@ namespace _Game.Session
             int count = PlayerPrefs.GetInt(KEY_SESSION_COUNT, 0);
             PlayerPrefs.SetInt(KEY_SESSION_COUNT, count + 1);
             
-            // Store install date on first session
-            if (count == 0)
+            // Store install date on first session if not already set
+            if (count == 0 && !PlayerPrefs.HasKey(KEY_INSTALL_DATE))
             {
                 PlayerPrefs.SetString(KEY_INSTALL_DATE, DateTime.UtcNow.ToString("o"));
             }
@@ -54,7 +54,7 @@ namespace _Game.Session
             
             try
             {
-                DateTime installDate = DateTime.Parse(installDateStr);
+                DateTime installDate = DateTime.Parse(installDateStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
                 return (DateTime.UtcNow - installDate).Days;
             }
             catch (Exception)
@@ -65,6 +65,7 @@ namespace _Game.Session
         
         /// <summary>
         /// Returns true if this is the first session ever.
+        /// NOTE: Call this AFTER IncrementSessionCount() - checks if count <= 1.
         /// </summary>
         public static bool IsFirstSession()
         {
