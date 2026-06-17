@@ -275,7 +275,115 @@ namespace _Game.Analytics
             );
         }
         
-        // Gameplay event methods will be added in Task 8
+        /// <summary>
+        /// Logs level start event with level number and session count.
+        /// </summary>
+        /// <param name="levelNumber">The level number being started</param>
+        public void LogLevelStart(int levelNumber)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogLevelStart");
+                return;
+            }
+            
+            int sessionCount = SessionManager.GetSessionCount();
+            
+            LogEvent(
+                AnalyticsEvents.LEVEL_START,
+                (AnalyticsEvents.PARAM_LEVEL_NUMBER, levelNumber),
+                (AnalyticsEvents.PARAM_SESSION_COUNT, sessionCount)
+            );
+        }
+        
+        /// <summary>
+        /// Logs level complete event with level number, duration, lives remaining, and session count.
+        /// </summary>
+        /// <param name="levelNumber">The level number that was completed</param>
+        /// <param name="duration">Duration in seconds to complete the level</param>
+        /// <param name="livesRemaining">Number of lives remaining after completion</param>
+        public void LogLevelComplete(int levelNumber, int duration, int livesRemaining)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogLevelComplete");
+                return;
+            }
+            
+            int sessionCount = SessionManager.GetSessionCount();
+            
+            LogEvent(
+                AnalyticsEvents.LEVEL_COMPLETE,
+                (AnalyticsEvents.PARAM_LEVEL_NUMBER, levelNumber),
+                (AnalyticsEvents.PARAM_LEVEL_DURATION, duration),
+                (AnalyticsEvents.PARAM_LIVES_REMAINING, livesRemaining),
+                (AnalyticsEvents.PARAM_SESSION_COUNT, sessionCount)
+            );
+        }
+        
+        /// <summary>
+        /// Logs level failed event with level number, duration, failure reason, and session count.
+        /// </summary>
+        /// <param name="levelNumber">The level number that was failed</param>
+        /// <param name="duration">Duration in seconds before failure</param>
+        /// <param name="failureReason">Reason for failure (e.g., "out_of_lives", "timeout")</param>
+        public void LogLevelFailed(int levelNumber, int duration, string failureReason)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogLevelFailed");
+                return;
+            }
+            
+            int sessionCount = SessionManager.GetSessionCount();
+            
+            LogEvent(
+                AnalyticsEvents.LEVEL_FAILED,
+                (AnalyticsEvents.PARAM_LEVEL_NUMBER, levelNumber),
+                (AnalyticsEvents.PARAM_LEVEL_DURATION, duration),
+                (AnalyticsEvents.PARAM_FAILURE_REASON, failureReason),
+                (AnalyticsEvents.PARAM_SESSION_COUNT, sessionCount)
+            );
+        }
+        
+        /// <summary>
+        /// Logs collision event with collision type.
+        /// </summary>
+        /// <param name="collisionType">Type of collision (e.g., "wall", "obstacle", "enemy", "target")</param>
+        public void LogCollision(string collisionType)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogCollision");
+                return;
+            }
+            
+            LogEvent(
+                AnalyticsEvents.COLLISION,
+                (AnalyticsEvents.PARAM_COLLISION_TYPE, collisionType)
+            );
+        }
+        
+        /// <summary>
+        /// Logs life lost event with level number and remaining lives.
+        /// </summary>
+        /// <param name="levelNumber">The level number where life was lost</param>
+        /// <param name="livesRemaining">Number of lives remaining after loss</param>
+        public void LogLifeLost(int levelNumber, int livesRemaining)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogLifeLost");
+                return;
+            }
+            
+            LogEvent(
+                AnalyticsEvents.LIFE_LOST,
+                (AnalyticsEvents.PARAM_LEVEL_NUMBER, levelNumber),
+                (AnalyticsEvents.PARAM_LIVES_REMAINING, livesRemaining)
+            );
+        }
+        
         // Settings event methods will be added in Task 9
     }
 }
