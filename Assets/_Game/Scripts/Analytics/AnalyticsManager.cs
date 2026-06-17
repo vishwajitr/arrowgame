@@ -202,6 +202,13 @@ namespace _Game.Analytics
         /// </summary>
         public void LogAppOpen()
         {
+            // I1: Check if initialized before logging
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogAppOpen");
+                return;
+            }
+            
             int sessionCount = SessionManager.GetSessionCount();
             int daysSinceInstall = SessionManager.GetDaysSinceInstall();
             
@@ -218,7 +225,20 @@ namespace _Game.Analytics
         /// </summary>
         public void LogFirstSessionStart()
         {
+            // I1: Check if initialized before logging
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogFirstSessionStart");
+                return;
+            }
+            
             string installTimestamp = SessionManager.GetInstallDate();
+            
+            // I2: Handle empty install date
+            if (string.IsNullOrEmpty(installTimestamp))
+            {
+                installTimestamp = DateTime.UtcNow.ToString("o");
+            }
             
             LogEvent(
                 AnalyticsEvents.FIRST_SESSION_START,
@@ -232,7 +252,22 @@ namespace _Game.Analytics
         /// </summary>
         public void LogSessionEnd()
         {
-            int sessionDuration = (int)(Time.realtimeSinceStartup - _sessionStartTime);
+            // I1: Check if initialized before logging
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogSessionEnd");
+                return;
+            }
+            
+            // C1: Guard against negative session duration on first call
+            if (_sessionStartTime <= 0f)
+            {
+                TraceLogger.LogWarning("Session start time not set, skipping LogSessionEnd");
+                return;
+            }
+            
+            // M1: Ensure duration is never negative
+            int sessionDuration = Mathf.Max(0, (int)(Time.realtimeSinceStartup - _sessionStartTime));
             
             LogEvent(
                 AnalyticsEvents.SESSION_END,
