@@ -1,6 +1,6 @@
-# Phase 1 — Unity editor wiring (temp_arrows)
+# Phase 1 — Unity editor wiring (local Unity project)
 
-The runnable Unity project is **`temp_arrows/`**. Analytics bootstrap runs at runtime (`AppBootstrap`); no `AnalyticsManager` GameObject is strictly required in the scene.
+The runnable Unity project lives in **`temp_arrows/`** beside this repo. That folder is **not tracked** by `arrowgame` (see root `.gitignore`); keep your Unity clone local or point to your own copy of the game project. Analytics bootstrap runs at runtime (`AppBootstrap`); no `AnalyticsManager` GameObject is strictly required in the scene.
 
 ## Optional: `AnalyticsConfig` asset
 
