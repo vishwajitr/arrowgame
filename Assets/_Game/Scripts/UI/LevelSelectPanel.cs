@@ -22,19 +22,21 @@ namespace _Game.UI
         private int _maxUnlockedLevel;
         
         /// <summary>
-        /// Initializes the panel and fetches the maximum unlocked level from SessionManager.
+        /// Initializes the panel.
         /// </summary>
         protected void Awake()
         {
-            _maxUnlockedLevel = SessionManager.GetHighestUnlockedLevel();
+            // Removed: _maxUnlockedLevel fetch moved to OnPanelShown() to avoid race conditions
         }
         
         /// <summary>
-        /// Called when the panel is shown. Generates level buttons and logs panel opened event.
+        /// Called when the panel is shown. Refreshes unlocked level data, generates level buttons, and logs panel opened event.
         /// </summary>
         public override void Show(bool playSound = true)
         {
             base.Show(playSound);
+            // Fetch max unlocked level when panel is shown (fixes race condition)
+            _maxUnlockedLevel = SessionManager.GetHighestUnlockedLevel();
             GenerateLevelButtons();
             LogPanelOpened();
         }
@@ -60,7 +62,10 @@ namespace _Game.UI
             // Clear existing buttons
             foreach (Transform child in _levelButtonContainer)
             {
-                Destroy(child.gameObject);
+                if (Application.isPlaying)
+                    Destroy(child.gameObject);
+                else
+                    DestroyImmediate(child.gameObject);
             }
             
             // Generate buttons for all levels
@@ -73,8 +78,8 @@ namespace _Game.UI
                 // Set button interactable state
                 button.interactable = isUnlocked;
                 
-                // Set button text
-                Text buttonText = button.GetComponentInChildren<Text>();
+                // Set button text (optimized to avoid GetComponentInChildren)
+                Text buttonText = button.GetComponent<Text>();
                 if (buttonText != null)
                 {
                     buttonText.text = levelNumber.ToString();
@@ -136,6 +141,26 @@ namespace _Game.UI
             else
             {
                 Debug.LogWarning("LevelSelectPanel: AnalyticsManager instance not found");
+            }
+        }
+        
+        /// <summary>
+        /// Cleanup method to remove all button listeners and prevent memory leaks.
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            // Clear all button listeners
+            if (_levelButtonContainer != null)
+            {
+                foreach (Transform child in _levelButtonContainer)
+                {
+                    Button button = child.GetComponent<Button>();
+                    if (button != null)
+                    {
+                        button.onClick.RemoveAllListeners();
+                    }
+                }
             }
         }
     }
