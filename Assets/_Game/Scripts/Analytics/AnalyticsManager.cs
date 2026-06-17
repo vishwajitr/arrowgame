@@ -287,6 +287,7 @@ namespace _Game.Analytics
                 return;
             }
             
+            levelNumber = Mathf.Max(0, levelNumber);
             int sessionCount = SessionManager.GetSessionCount();
             
             LogEvent(
@@ -310,6 +311,9 @@ namespace _Game.Analytics
                 return;
             }
             
+            levelNumber = Mathf.Max(0, levelNumber);
+            duration = Mathf.Max(0, duration);
+            livesRemaining = Mathf.Max(0, livesRemaining);
             int sessionCount = SessionManager.GetSessionCount();
             
             LogEvent(
@@ -335,6 +339,14 @@ namespace _Game.Analytics
                 return;
             }
             
+            if (string.IsNullOrEmpty(failureReason))
+            {
+                TraceLogger.LogWarning("LogLevelFailed called with null/empty failureReason, using 'unknown'");
+                failureReason = "unknown";
+            }
+            
+            levelNumber = Mathf.Max(0, levelNumber);
+            duration = Mathf.Max(0, duration);
             int sessionCount = SessionManager.GetSessionCount();
             
             LogEvent(
@@ -358,6 +370,12 @@ namespace _Game.Analytics
                 return;
             }
             
+            if (string.IsNullOrEmpty(collisionType))
+            {
+                TraceLogger.LogWarning("LogCollision called with null/empty collisionType, using 'unknown'");
+                collisionType = "unknown";
+            }
+            
             LogEvent(
                 AnalyticsEvents.COLLISION,
                 (AnalyticsEvents.PARAM_COLLISION_TYPE, collisionType)
@@ -377,10 +395,15 @@ namespace _Game.Analytics
                 return;
             }
             
+            levelNumber = Mathf.Max(0, levelNumber);
+            livesRemaining = Mathf.Max(0, livesRemaining);
+            int sessionCount = SessionManager.GetSessionCount();
+            
             LogEvent(
                 AnalyticsEvents.LIFE_LOST,
                 (AnalyticsEvents.PARAM_LEVEL_NUMBER, levelNumber),
-                (AnalyticsEvents.PARAM_LIVES_REMAINING, livesRemaining)
+                (AnalyticsEvents.PARAM_LIVES_REMAINING, livesRemaining),
+                (AnalyticsEvents.PARAM_SESSION_COUNT, sessionCount)
             );
         }
         
