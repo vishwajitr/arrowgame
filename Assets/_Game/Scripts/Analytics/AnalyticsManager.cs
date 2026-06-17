@@ -29,6 +29,14 @@ namespace _Game.Analytics
         /// </summary>
         public void Initialize(Action onComplete = null)
         {
+            // I1: Prevent re-initialization
+            if (_isInitialized)
+            {
+                TraceLogger.LogWarning("AnalyticsManager already initialized");
+                onComplete?.Invoke();
+                return;
+            }
+            
             if (_config == null)
             {
                 TraceLogger.LogError("AnalyticsConfig not assigned!");
@@ -50,7 +58,7 @@ namespace _Game.Analytics
         {
             bool initialized = false;
             float timeout = 3f;
-            float elapsed = 0f;
+            float startTime = Time.realtimeSinceStartup;
             
             // TODO: Firebase SDK initialization will go here when SDK is integrated
             // For now, simulate initialization delay
@@ -80,19 +88,18 @@ namespace _Game.Analytics
                     TraceLogger.LogError($"Firebase dependencies not available: {dependencyStatus}");
                 }
             });
+            */
             
-            // Wait for initialization or timeout
-            while (!initialized && elapsed < timeout)
+            // C2: Wait for initialization or timeout (works with or without Firebase)
+            while (!initialized && (Time.realtimeSinceStartup - startTime) < timeout)
             {
-                elapsed += Time.deltaTime;
                 yield return null;
             }
             
             if (!initialized)
             {
-                TraceLogger.LogWarning("Firebase Analytics init timed out");
+                TraceLogger.LogWarning("Analytics initialization timed out");
             }
-            */
             
             onComplete?.Invoke();
         }
@@ -103,6 +110,13 @@ namespace _Game.Analytics
         /// </summary>
         private void LogEvent(string eventName, params (string key, object value)[] parameters)
         {
+            // C1: Null check for config
+            if (_config == null)
+            {
+                TraceLogger.LogWarning("AnalyticsConfig is null, cannot log event");
+                return;
+            }
+            
             // Safety cap check
             if (_eventsLoggedThisSession >= _config.maxEventsPerSession)
             {
@@ -115,15 +129,18 @@ namespace _Game.Analytics
             
             _eventsLoggedThisSession++;
             
-            // Debug mode: log to console
-            string paramsStr = parameters.Length > 0 ? $" with {parameters.Length} params" : "";
-            TraceLogger.Log($"[Analytics] {eventName}{paramsStr}");
-            
-            if (parameters.Length > 0)
+            // I3: Debug mode: log to console (respects debug mode setting)
+            if (_config.debugMode)
             {
-                foreach (var param in parameters)
+                string paramsStr = parameters.Length > 0 ? $" with {parameters.Length} params" : "";
+                TraceLogger.Log($"[Analytics] {eventName}{paramsStr}");
+                
+                if (parameters.Length > 0)
                 {
-                    TraceLogger.Log($"  - {param.key}: {param.value}");
+                    foreach (var param in parameters)
+                    {
+                        TraceLogger.Log($"  - {param.key}: {param.value}");
+                    }
                 }
             }
             
@@ -137,6 +154,8 @@ namespace _Game.Analytics
             if (_isInitialized)
             {
                 // Convert to Firebase Parameter array
+                // I4: TODO - Type preservation needed: currently converts all values to strings,
+                // but Firebase supports int, long, double. Will need type checking when enabled.
                 var firebaseParams = new Parameter[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                 {
@@ -164,7 +183,10 @@ namespace _Game.Analytics
             }
             else
             {
-                // App returning from background
+                // I2: App returning from background
+                // NOTE: This logs app_open on every resume (including from multitasking),
+                // not just cold starts. This is acceptable behavior but will inflate metrics
+                // if cold-start vs resume distinction is needed later.
                 LogAppOpen();
             }
         }
