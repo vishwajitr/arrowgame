@@ -105,7 +105,10 @@ namespace _Game.Session
         {
             return PlayerPrefs.GetInt(KEY_HIGHEST_UNLOCKED, 1);
         }
-        
+
+        /// <summary>Alias for plan/spec wording.</summary>
+        public static int GetMaxUnlockedLevel() => GetHighestUnlockedLevel();
+
         /// <summary>
         /// Unlocks the next level if current level was completed.
         /// Call this on level win.

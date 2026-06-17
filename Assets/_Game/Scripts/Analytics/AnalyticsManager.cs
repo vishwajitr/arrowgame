@@ -22,6 +22,28 @@ namespace _Game.Analytics
         private bool _isInitialized = false;
         private int _eventsLoggedThisSession = 0;
         private float _sessionStartTime = 0f;
+
+        public bool IsAnalyticsInitialized => _isInitialized;
+
+        public bool ShouldLogCollisions =>
+            _isInitialized && _config != null && _config.logCollisionEvents;
+
+        protected override void Awake()
+        {
+            if (_config == null)
+            {
+                _config = Resources.Load<AnalyticsConfigSO>("DefaultAnalyticsConfig");
+            }
+
+            if (_config == null)
+            {
+                _config = ScriptableObject.CreateInstance<AnalyticsConfigSO>();
+                _config.debugMode = true;
+                _config.analyticsEnabled = true;
+            }
+
+            base.Awake();
+        }
         
         /// <summary>
         /// Initializes Analytics (Firebase will be added later).
