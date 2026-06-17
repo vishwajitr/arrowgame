@@ -407,6 +407,60 @@ namespace _Game.Analytics
             );
         }
         
-        // Settings event methods will be added in Task 9
+        /// <summary>
+        /// Logs consent status changed event with the new consent status.
+        /// </summary>
+        /// <param name="consentStatus">The new consent status (e.g., "granted", "denied", "not_required")</param>
+        public void LogConsentStatusChanged(string consentStatus)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogConsentStatusChanged");
+                return;
+            }
+            
+            if (string.IsNullOrEmpty(consentStatus))
+            {
+                TraceLogger.LogWarning("LogConsentStatusChanged called with null/empty consentStatus, using 'unknown'");
+                consentStatus = "unknown";
+            }
+            
+            LogEvent(
+                AnalyticsEvents.CONSENT_STATUS_CHANGED,
+                (AnalyticsEvents.PARAM_CONSENT_STATUS, consentStatus)
+            );
+        }
+        
+        /// <summary>
+        /// Logs settings changed event with the setting name and new value.
+        /// </summary>
+        /// <param name="settingName">The name of the setting that changed (e.g., "sound", "music")</param>
+        /// <param name="settingValue">The new value of the setting (e.g., "on", "off")</param>
+        public void LogSettingsChanged(string settingName, string settingValue)
+        {
+            if (!_isInitialized)
+            {
+                TraceLogger.LogWarning("Analytics not initialized, skipping LogSettingsChanged");
+                return;
+            }
+            
+            if (string.IsNullOrEmpty(settingName))
+            {
+                TraceLogger.LogWarning("LogSettingsChanged called with null/empty settingName, using 'unknown'");
+                settingName = "unknown";
+            }
+            
+            if (string.IsNullOrEmpty(settingValue))
+            {
+                TraceLogger.LogWarning("LogSettingsChanged called with null/empty settingValue, using 'unknown'");
+                settingValue = "unknown";
+            }
+            
+            LogEvent(
+                AnalyticsEvents.SETTINGS_CHANGED,
+                (AnalyticsEvents.PARAM_SETTING_NAME, settingName),
+                (AnalyticsEvents.PARAM_SETTING_VALUE, settingValue)
+            );
+        }
     }
 }
