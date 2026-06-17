@@ -73,6 +73,15 @@ namespace _Game.Session
         }
         
         /// <summary>
+        /// Gets the install date in ISO8601 format.
+        /// Returns empty string if not set.
+        /// </summary>
+        public static string GetInstallDate()
+        {
+            return PlayerPrefs.GetString(KEY_INSTALL_DATE, "");
+        }
+        
+        /// <summary>
         /// Gets the current level the player is on.
         /// </summary>
         public static int GetCurrentLevel()

@@ -196,10 +196,49 @@ namespace _Game.Analytics
             LogSessionEnd();
         }
         
-        // Lifecycle event methods will be added in Task 7
-        // Placeholder stubs for OnApplicationPause/Quit:
-        private void LogSessionEnd() { }
-        private void LogAppOpen() { }
+        /// <summary>
+        /// Logs app open event with session count and days since install.
+        /// Called when app starts or returns from background.
+        /// </summary>
+        public void LogAppOpen()
+        {
+            int sessionCount = SessionManager.GetSessionCount();
+            int daysSinceInstall = SessionManager.GetDaysSinceInstall();
+            
+            LogEvent(
+                AnalyticsEvents.APP_OPEN,
+                (AnalyticsEvents.PARAM_SESSION_COUNT, sessionCount),
+                (AnalyticsEvents.PARAM_DAYS_SINCE_INSTALL, daysSinceInstall)
+            );
+        }
+        
+        /// <summary>
+        /// Logs first session start event with install timestamp.
+        /// Should only be called if SessionManager.IsFirstSession() is true.
+        /// </summary>
+        public void LogFirstSessionStart()
+        {
+            string installTimestamp = SessionManager.GetInstallDate();
+            
+            LogEvent(
+                AnalyticsEvents.FIRST_SESSION_START,
+                (AnalyticsEvents.PARAM_INSTALL_TIMESTAMP, installTimestamp)
+            );
+        }
+        
+        /// <summary>
+        /// Logs session end event with session duration in seconds.
+        /// Called when app goes to background or quits.
+        /// </summary>
+        public void LogSessionEnd()
+        {
+            int sessionDuration = (int)(Time.realtimeSinceStartup - _sessionStartTime);
+            
+            LogEvent(
+                AnalyticsEvents.SESSION_END,
+                (AnalyticsEvents.PARAM_SESSION_DURATION, sessionDuration)
+            );
+        }
         
         // Gameplay event methods will be added in Task 8
         // Settings event methods will be added in Task 9
